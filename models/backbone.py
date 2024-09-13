@@ -11,9 +11,16 @@ from .transformer import Transformer_Encoder, Transformer_Decoder, DropPath
 from .positional_embedding import build_position_encoding
 
 
+
+#variable to have able to change dim_feedforward and encoder layer
+
 # Point Net Backbone
 class PointNetBackbone(nn.Module):
-    def __init__(self):
+    def __init__(self,
+                 trans_dim_feedforward = 2048,
+                 encoder_num_layers1 = 4,
+                 encoder_num_layers2 = 4
+                 ):
 
         super(PointNetBackbone, self).__init__()
 
@@ -22,20 +29,13 @@ class PointNetBackbone(nn.Module):
         self.encoderlayer1 = nn.TransformerEncoderLayer(
             d_model = 3,
             nhead = 1,
-            dim_feedforward=2048,
-            dropout=0.2,
-            activation= 'relu',
-            layer_norm_eps=1e-05,
-            batch_first=True,
-            norm_first=False,
-            bias=True,
-            device=None,
-            dtype=None
+            dim_feedforward=trans_dim_feedforward,
+            dropout=0.2
         )
 
         self.transformerencoder1 = nn.TransformerEncoder(
             self.encoderlayer1,
-            num_layers = 4
+            num_layers = encoder_num_layers1
             )
 
 
@@ -43,20 +43,13 @@ class PointNetBackbone(nn.Module):
         self.encoderlayer2 = nn.TransformerEncoderLayer(
             d_model = 64,
             nhead = 1,
-            dim_feedforward=2048,
-            dropout=0.2,
-            activation= 'relu',
-            layer_norm_eps=1e-05,
-            batch_first=True,
-            norm_first=False,
-            bias=True,
-            device=None,
-            dtype=None
+            dim_feedforward=trans_dim_feedforward,
+            dropout=0.2
         )
 
         self.transformerencoder2 = nn.TransformerEncoder(
             self.encoderlayer2,
-            num_layers = 4
+            num_layers = encoder_num_layers2
             )
 
         self.pos_emb = nn.Embedding(
@@ -95,14 +88,15 @@ class PointNetBackbone(nn.Module):
         )
 
 
-    def forward(self, x: NestedTensor):
+    def forward(self, x: Tensor) -> Tensor:
 
         # get nested vector size
         data = x.tensors
-        mask = x.mask
+
+        #mask = x.mask
 
         # pass through first encoder layer
-        output = self.transformerencoder1(data, mask)
+        output = self.transformerencoder1(data)
 
         # pass through first shared MLP
         #into batch_size, num_features, num_points
@@ -114,7 +108,7 @@ class PointNetBackbone(nn.Module):
         # pass through second encoder layer
         pos_emb = self.pos_emb
         output_with_pos = output + pos_emb
-        output = self.transformerencoder2(output_with_pos, mask)
+        output = self.transformerencoder2(output_with_pos)
 
         # pass through second MLP
         #into batch_size, num_features, num_points
