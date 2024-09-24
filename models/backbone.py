@@ -26,7 +26,7 @@ class PointNetBackbone(nn.Module):
 
 
         # transformer encoders 1
-        self.encoderlayer1 = nn.TransformerEncoderLayer(
+        encoderlayer1 = nn.TransformerEncoderLayer(
             d_model = 3,
             nhead = 1,
             dim_feedforward=trans_dim_feedforward,
@@ -34,13 +34,13 @@ class PointNetBackbone(nn.Module):
         )
 
         self.transformerencoder1 = nn.TransformerEncoder(
-            self.encoderlayer1,
+            encoderlayer1,
             num_layers = encoder_num_layers1
             )
 
 
          # transformer encoders 2
-        self.encoderlayer2 = nn.TransformerEncoderLayer(
+        encoderlayer2 = nn.TransformerEncoderLayer(
             d_model = 64,
             nhead = 1,
             dim_feedforward=trans_dim_feedforward,
@@ -48,7 +48,7 @@ class PointNetBackbone(nn.Module):
         )
 
         self.transformerencoder2 = nn.TransformerEncoder(
-            self.encoderlayer2,
+            encoderlayer2,
             num_layers = encoder_num_layers2
             )
 

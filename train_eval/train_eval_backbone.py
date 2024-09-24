@@ -21,7 +21,7 @@ def train_one_epoch(model: torch.nn.Module, data_loader, optimizer, device, epoc
     loss_list = []
 
     #integrate through inputs calculate the loss
-    for input1, input2 in data_loader:
+    for i, (input1, input2) in enumerate(data_loader):
         input1, input2 = input1.to(device), input2.to(device) # decice is cuda or cpu
         
         input_total = torch.cat([input1, input2], 0)
@@ -36,13 +36,15 @@ def train_one_epoch(model: torch.nn.Module, data_loader, optimizer, device, epoc
         optimizer.step()
         
         loss_list.append(loss.item()) 
+        if i % 10:
+            print("current batch loss: ", loss.item(), flush=True)
     
     loss_list_avg = statistics.mean(loss_list)
     print(f"Epoch {epoch}, Loss: {loss_list_avg}")
     return loss_list_avg
 
 
-def evaluate(model: torch.nn.Module, data_loader, device):
+def evaluate(model: torch.nn.Module, data_loader, device, epoch, scaler=None):
     #set to eval 
     model.eval()
     loss_list = []
@@ -63,7 +65,7 @@ def evaluate(model: torch.nn.Module, data_loader, device):
     
     #take and return avrage loss
     loss_list_avg = statistics.mean(loss_list)
-    print(f"Loss: {loss_list_avg}")
+    print(f"Epoch {epoch}, Loss: {loss_list_avg}")
     return loss_list_avg
 
         
