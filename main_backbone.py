@@ -95,13 +95,13 @@ def main(args):
         print(f'Epoch {epoch}/{args.epochs}')
         
         # train for one epoch
-        train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, device, epoch, tb_writer)
+        train_loss, train_acc = train_one_epoch(model, train_loader, optimizer, device, epoch)
         
         # update learning rate
         scheduler.step()
         
         # evaluate on validation set
-        val_loss, val_acc = evaluate(model, val_loader, device, epoch, tb_writer)
+        val_loss, val_acc = evaluate(model, val_loader, device, epoch)
         
         # log results in tensorboard
         tb_writer.add_scalar('train/loss', train_loss, epoch)
